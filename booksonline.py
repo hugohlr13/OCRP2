@@ -10,7 +10,6 @@ page = reponse.content
 # transforme (parse) le HTML en objet BeautifulSoup
 soup = BeautifulSoup(page, "html.parser")
 
-
 # extraction des données d'un produit :
 
 product_page_url = url
@@ -42,3 +41,12 @@ print(review_rating)
 
 image_url = soup.findAll('img')[0]['src'].replace("../..", "http://books.toscrape.com")
 print(image_url)
+
+# stockage des données dans un fichier local .csv :
+
+en_tete = ['product_page_url', 'universal_product_code', 'title', 'price_including_tax', 'price_excluding_tax', 'number_avalaible', 'product_description', 'category', 'review_rating', 'image_url']
+with open('databooksonline.csv', 'w') as csv_file:
+    writer = csv.writer(csv_file, delimiter=',')
+    writer.writerow(en_tete)
+    writer.writerow([product_page_url, universal_product_code, title, price_including_tax, price_excluding_tax, number_avalaible, product_description, category, review_rating, image_url])
+
