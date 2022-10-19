@@ -1,52 +1,83 @@
+from calendar import c
 import requests
 from bs4 import BeautifulSoup
 import csv
+import re
 
-# lien de la page à scrapper
-url = "http://books.toscrape.com/catalogue/tipping-the-velvet_999/index.html"
-reponse = requests.get(url)
-page = reponse.content
+booksonline_url = "https://books.toscrape.com/catalogue/category/books_1/index.html"
 
-# transforme (parse) le HTML en objet BeautifulSoup
-soup = BeautifulSoup(page, "html.parser")
+def parse_html(booksonline_url):
+    """ Extraire le contenu de la page html du site booksonline"""
 
-# extraction des données d'un produit :
+    page_response = requests.get(booksonline_url)
+    return BeautifulSoup(page_response.content, 'html.parser')
 
-product_page_url = url
-print(product_page_url)
+def next_page_category(category_url):
+    """ Détecter la présence d'un tag next par catégorie"""
 
-universal_product_code = soup.find("table", class_="table table-striped").findAll("td")[0].string
-print(universal_product_code)
+    content = parse_html(category_url)
+    next_page_tag = content.find('li', class_="next")  
+    return next_page_tag
 
-title = soup.find("h1").string
-print (title)
+def extract_categories_urls(category_url):
+    """ Extraire les URLS des pages de chaque catégorie en détectant la présence du bouton next """
+    
+    pages_categories_url = [category_url]
+    response_category = requests.get(category_url)
+    soup_category = BeautifulSoup(response_category.content, 'html.parser')
+    page_url_processed = category_url.replace("index.html", "")
+    page_number = 2
 
-price_including_tax = soup.find("table", class_="table table-striped").findAll("td")[3].string
-print(price_including_tax)
+    while True:
+        nextpage_tag = soup_category.find('li', class_="next")
+        if nextpage_tag is None:
+            break
+        page_url = f'{page_url_processed}page-{page_number}.html'
+        pages_categories_url.append(page_url)
+        response_category = requests.get(page_url)
+        soup_category = BeautifulSoup(response_category.content, 'html.parser')
+        page_number += 1
 
-price_excluding_tax = soup.find("table", class_="table table-striped").findAll("td")[2].string
-print(price_excluding_tax)
+    return pages_categories_url
 
-number_avalaible = soup.find("table", class_="table table-striped").findAll("td")[5].string
-print(number_avalaible)
+def extract_books_urls(categories_urls):
+    """ Extraire les URLS de tous les livres par catégorie"""
 
-product_description = soup.findAll("p")[3].string
-print(product_description)
+    books_url = []
+    for page_url in categories_urls:
+        content = parse_html(page_url)
+        titles = content.find_all("h3")
+        for title in titles:
+            tag_href = title.find('a')["href"]
+            url = tag_href.replace("../../../", "http://books.toscrape.com/catalogue/")
+            books_url.append(url)
 
-category = soup.find("ul", class_="breadcrumb").findAll("a")[2].string
-print(category)
+    return books_url
 
-review_rating = soup.findAll("p", class_="star-rating")[0]["class"][1]
-print(review_rating)
+def extract_book_data(url):
+    """Extraire les data d'un livre"""
 
-image_url = soup.findAll('img')[0]['src'].replace("../..", "http://books.toscrape.com")
-print(image_url)
+    book_url = url
+    url = parse_html(url)
+    book_data = {}
 
-# stockage des données dans un fichier local .csv :
+    book_data['product_page_url'] = book_url
+    book_data['universal_product_codes'] = url.find("table", class_="table table-striped").findAll("td")[0].text
+    book_data['title'] = url.find("h1").text
+    book_data['price_including_tax'] = url.find("table", class_="table table-striped").findAll("td")[3].text.lstrip("Â£")
+    book_data['price_excluding_tax'] = url.find("table", class_="table table-striped").findAll("td")[2].text.lstrip("Â£")
+    number_available_tag = url.find("table", class_="table table-striped").findAll("td")[5].text
+    number_available_tag = re.sub(r'\D', '', str(number_available_tag))
+    number_available_tag = int(number_available_tag)
+    book_data['number_available'] = number_available_tag
+    book_data['product_description'] = url.findAll('p')[3].text
+    book_data['category'] = url.find('ul', class_="breadcrumb").findAll('a')[2].text
+    book_data['review_rating'] = url.findAll("p", class_="star-rating")[0]['class'][1] 
+    book_data['image_url'] = url.findAll('img')[0]['src'].replace("../..", "http://books.toscrape.com") 
 
-en_tete = ['product_page_url', 'universal_product_code', 'title', 'price_including_tax', 'price_excluding_tax', 'number_avalaible', 'product_description', 'category', 'review_rating', 'image_url']
-with open('databooksonline.csv', 'w') as csv_file:
-    writer = csv.writer(csv_file, delimiter=',')
-    writer.writerow(en_tete)
-    writer.writerow([product_page_url, universal_product_code, title, price_including_tax, price_excluding_tax, number_avalaible, product_description, category, review_rating, image_url])
+    return book_data
+
+if __name__ == '__main__':
+   book_data = extract_book_data("https://books.toscrape.com/catalogue/someone-like-you-the-harrisons-2_735/index.html")
+   print(book_data)
 
