@@ -91,6 +91,23 @@ def extract_books_data(books_urls):
     """ Extraire les data des livres d'une catégorie"""
     return [extract_book_data(book_url) for book_url in books_urls]
 
+def load_csv_category(books_data):
+    """ Sauvegarder les data des livres d'une catégorie"""
+
+    category_name = books_data[0]["category"]
+    folder_path = Path("data") / category_name
+    folder_path.mkdir(parents=True, exist_ok=True)
+
+    file_path = folder_path / f"{category_name}.csv"
+
+    en_tete = ['product_page_url', 'universal_product_code', 'title', 'price_including_tax', 'price_excluding_tax', 'number_avalaible', 'product_description', 'category', 'review_rating', 'image_url']
+
+    with open(file_path, "w") as csv_file:
+        writer = csv.writer(csv_file, delimiter=',')
+        writer.writerow(en_tete)
+        for book_data in books_data:
+            writer.writerow([book_data['product_page_url'], book_data['universal_product_codes'], book_data['title'], book_data['price_including_tax'], book_data['price_excluding_tax'], book_data['number_available'], book_data['product_description'], book_data['category'], book_data['review_rating'], book_data['image_url']])
+
 
 def etl():
     """ Enregistrer dans un fichier .csv les informations des livres par catégorie et enregistrer les images de tous les livres en local """
@@ -106,6 +123,7 @@ def etl():
         print(len(books_urls))
         books_data = extract_books_data(books_urls)
         print(books_data)
+        load_csv_category(books_data)
         break
 
 if __name__ == '__main__':
