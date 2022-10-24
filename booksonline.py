@@ -1,5 +1,3 @@
-from calendar import c
-from genericpath import exists
 from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
@@ -95,7 +93,7 @@ def load_csv_category(books_data):
     """ Sauvegarder les data des livres d'une catégorie"""
 
     category_name = books_data[0]["category"]
-    folder_path = Path("data") / category_name
+    folder_path = Path("books_data") / category_name
     folder_path.mkdir(parents=True, exist_ok=True)
 
     file_path = folder_path / f"{category_name}.csv"
@@ -108,6 +106,21 @@ def load_csv_category(books_data):
         for book_data in books_data:
             writer.writerow([book_data['product_page_url'], book_data['universal_product_codes'], book_data['title'], book_data['price_including_tax'], book_data['price_excluding_tax'], book_data['number_available'], book_data['product_description'], book_data['category'], book_data['review_rating'], book_data['image_url']])
 
+def load_books_images(books_data):
+    """ Sauvegarder les images des livres par catégorie"""
+
+    category_name = books_data[0]["category"]
+    folder_path = Path("books_images") / category_name 
+    folder_path.mkdir(parents=True, exist_ok=True)
+
+    for book_data in books_data:
+        print(book_data['image_url'], book_data['title'])
+        image = requests.get(book_data['image_url']).content
+        title_format = ''.join(char for char in book_data['title'] if char.isalnum())
+        file_path = folder_path / f"{title_format}.jpg"
+        print(file_path)
+        with open(file_path, "wb") as image_file:
+            image_file.write(image)
 
 def etl():
     """ Enregistrer dans un fichier .csv les informations des livres par catégorie et enregistrer les images de tous les livres en local """
@@ -124,7 +137,8 @@ def etl():
         books_data = extract_books_data(books_urls)
         print(books_data)
         load_csv_category(books_data)
-        break
+        load_books_images(books_data)
+
 
 if __name__ == '__main__':
     etl()
