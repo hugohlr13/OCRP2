@@ -17,9 +17,7 @@ Below, you will find the different information scraped by the program:
 
 Install Python 3.10: https://www.python.org/
 
-Install Requests: pip install requests
-
-Install BeautifulSoup: pip install beautifulsoup4
+pip install -r requirements.txt
 
 #### Installing
 
