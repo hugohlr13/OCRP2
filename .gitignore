@@ -128,8 +128,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Booksonline
-
+# Books To Scrape
 env
 books_data
 books_images
