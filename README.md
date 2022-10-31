@@ -15,17 +15,19 @@ Below, you will find the different information scraped by the program:
 
 ### Prerequisites
 
-Install Python 3.10: https://www.python.org/
+Install Python 3.11: https://www.python.org/
 
-pip install -r requirements.txt
+Install Request:  python3.11 -m pip install requests
+
+Instal BeautifulSoup: python3.11 -m pip install beautifulsoup4
 
 #### Installing
 
 - git clone : https://github.com/hugohlr13/OCRP2.git
 - Open the terminal.
-- Create a folder: mkdir bookstoscrape.
-- Position in the folder created bookstoscrape. 
-- Create and activate the virtual environment:  source env/bin/activate
+- Create the virtual environment: python -m venv env
+- Install Requireemnts: pip install -r requirements.txt 
+- Activate the virtual environment:  source env/bin/activate
 
 ## Running the tests
 
