@@ -25,6 +25,7 @@ Instal BeautifulSoup: python3.11 -m pip install beautifulsoup4
 
 - git clone : https://github.com/hugohlr13/OCRP2.git
 - Open the terminal.
+- Position into git clone folder.
 - Create the virtual environment: python -m venv env
 - Install Requireemnts: pip install -r requirements.txt 
 - Activate the virtual environment:  source env/bin/activate
