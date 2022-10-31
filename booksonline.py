@@ -7,13 +7,13 @@ import re
 booksonline_url = "https://books.toscrape.com/catalogue/category/books_1/index.html"
 
 def parse_html(booksonline_url):
-    """ Extraire le contenu de la page html du site booksonline"""
+    """ Extract the content of the html page of the booksonline site"""
 
     page_response = requests.get(booksonline_url)
     return BeautifulSoup(page_response.content, 'html.parser')
 
 def extract_category_urls(booksonline_url):
-    """ Obtenir les URL de chaque catégorie"""
+    """ Extract and transform URLs from each category"""
 
     content = parse_html(booksonline_url)
     category_tags = content.findAll("ul")[2].findAll("a")
@@ -30,7 +30,7 @@ def extract_category_urls(booksonline_url):
     return category_urls
 
 def extract_pages_category_urls(category_urls):
-    """ Extraire les URLS des pages de chaque catégorie en détectant la présence du bouton next """
+    """ Extract and transform the URLS of the pages of each category by detecting the presence of the next button """
     
     pages_category_urls = [category_urls]
     content = parse_html(category_urls)
@@ -49,7 +49,7 @@ def extract_pages_category_urls(category_urls):
     return pages_category_urls
 
 def extract_books_urls(pages_category_urls):
-    """ Extraire les URLS de tous les livres par catégorie"""
+    """ Extract and transform URLs of all books by category"""
 
     books_urls = []
     for page_url in pages_category_urls:
@@ -63,7 +63,7 @@ def extract_books_urls(pages_category_urls):
     return books_urls
 
 def extract_book_data(book_url):
-    """Extraire les data d'un livre"""
+    """Extract and transform data from a book"""
 
     url = book_url
     book_url = parse_html(book_url)
@@ -86,11 +86,11 @@ def extract_book_data(book_url):
     return book_data
 
 def extract_books_data(books_urls):
-    """ Extraire les data des livres d'une catégorie"""
+    """ Extract data from books in a category"""
     return [extract_book_data(book_url) for book_url in books_urls]
 
 def load_csv_category(books_data):
-    """ Sauvegarder les data des livres d'une catégorie"""
+    """ Save data for books in a category"""
 
     category_name = books_data[0]["category"]
     folder_path = Path("books_data") / category_name
@@ -107,7 +107,7 @@ def load_csv_category(books_data):
             writer.writerow([book_data['product_page_url'], book_data['universal_product_codes'], book_data['title'], book_data['price_including_tax'], book_data['price_excluding_tax'], book_data['number_available'], book_data['product_description'], book_data['category'], book_data['review_rating'], book_data['image_url']])
 
 def load_books_images(books_data):
-    """ Sauvegarder les images des livres par catégorie"""
+    """ Save book images by category"""
 
     category_name = books_data[0]["category"]
     folder_path = Path("books_images") / category_name 
@@ -123,7 +123,7 @@ def load_books_images(books_data):
             image_file.write(image)
 
 def etl():
-    """ Enregistrer dans un fichier .csv les informations des livres par catégorie et enregistrer les images de tous les livres en local """
+    """ Save in a .csv file the information of the books by category and save the images of all the books locally"""
 
     booksonline_url = "https://books.toscrape.com/catalogue/category/books_1/index.html"
     category_urls = extract_category_urls(booksonline_url)
@@ -139,6 +139,6 @@ def etl():
         load_csv_category(books_data)
         load_books_images(books_data)
 
-
 if __name__ == '__main__':
     etl()
+
