@@ -27,7 +27,7 @@ Instal BeautifulSoup: python3.11 -m pip install beautifulsoup4
 - Open the terminal.
 - Position into git clone folder.
 - Create the virtual environment: python -m venv env
-- Install Requireemnts: pip install -r requirements.txt 
+- Install Requirements: pip install -r requirements.txt 
 - Activate the virtual environment:  source env/bin/activate
 
 ## Running the tests
